@@ -103,32 +103,39 @@ def review_master_resume(content: str) -> dict:
     Review a master resume for errors: date mismatches, formatting gaps, grammar issues.
     Returns {'corrected': str, 'changes': [str], 'has_changes': bool}
     """
-    prompt = f"""You are reviewing someone's master resume to catch and fix errors before they use it for job applications. Act like a careful, supportive partner checking their work.
+    prompt = f"""You are a meticulous resume proofreader. Review this resume and fix any errors. Be especially aggressive about catching date problems.
 
-Look for and fix:
-- Date inconsistencies or mismatches (e.g. end date before start date, overlapping dates that seem wrong, missing years)
-- Job section formatting issues (e.g. missing job titles, company names without dates)
-- Grammar and spelling errors
-- Inconsistent tense (experience should use past tense except current role)
-- Inconsistent formatting across sections
-- Missing or obviously incomplete contact information
+PRIORITY — Date issues to catch and fix:
+- Employment dates listed in wrong order (e.g. "2022 - 2019" should be "2019 - 2022")
+- End date that comes before the start date for any job
+- Impossible date ranges (e.g. working somewhere before graduating)
+- Jobs where the dates clearly don't make logical sense in sequence
+- Missing dates on any experience or education entry
+- Dates formatted inconsistently (mix of "Jan 2020" vs "2020" vs "01/2020" — standardize them)
 
-Rules:
-- Do NOT rewrite or improve the content — only fix genuine errors
-- Do NOT add information that isn't there
-- Do NOT change the writing style or vocabulary
-- If a section looks fine, leave it exactly as-is
+Also fix:
+- Grammar and spelling errors anywhere in the document
+- Wrong tense (past jobs should use past tense, current job uses present tense)
+- Job titles or company names that appear to be cut off or malformed
+- Bullet points that are missing a verb or are clearly incomplete sentences
+- Contact info that looks broken (e.g. email missing @ symbol, phone with wrong digit count)
 
-RESUME:
+Hard rules:
+- Do NOT rewrite, rephrase, or improve content that is already correct
+- Do NOT invent dates, companies, titles, or any missing information
+- Do NOT change the structure or order of sections
+- Only fix things that are clearly wrong
+
+RESUME TO REVIEW:
 {content[:4000]}
 
-Return ONLY valid JSON in this exact format (no explanation outside the JSON):
+Return ONLY valid JSON (no text before or after):
 {{
-  "corrected_resume": "the full corrected resume text here",
-  "changes": ["brief description of change 1", "brief description of change 2"]
+  "corrected_resume": "the full corrected resume text",
+  "changes": ["specific description of each fix made, e.g. 'Fixed date range at Acme Corp: was 2022-2019, corrected to 2019-2022'"]
 }}
 
-If no errors were found, return the original text unchanged and an empty changes array."""
+If nothing needs fixing, return the original text exactly and an empty changes array."""
 
     message = client.messages.create(
         model="claude-haiku-4-5",

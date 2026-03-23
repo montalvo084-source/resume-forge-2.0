@@ -81,19 +81,37 @@ def create_app():
         return [{'label': label, 'icon': icon} for n, label, icon in tiers if total >= n]
 
     def _run_resume_review(content: str):
-        """Run AI review and store result in session. Silently skips on API error."""
+        """Run AI review and store result in DB. Silently skips on API error."""
+        import json
         from ai import review_master_resume
         try:
             result = review_master_resume(content)
             if result['has_changes']:
-                session['resume_review'] = {
-                    'corrected': result['corrected'],
-                    'changes': result['changes'],
-                }
+                Setting.set('pending_review_corrected', result['corrected'])
+                Setting.set('pending_review_changes', json.dumps(result['changes']))
             else:
-                session.pop('resume_review', None)
+                Setting.set('pending_review_corrected', '')
+                Setting.set('pending_review_changes', '')
         except Exception:
-            session.pop('resume_review', None)
+            Setting.set('pending_review_corrected', '')
+            Setting.set('pending_review_changes', '')
+
+    def _get_pending_review():
+        """Load pending review from DB. Returns dict or None."""
+        import json
+        corrected = Setting.get('pending_review_corrected', '')
+        changes_raw = Setting.get('pending_review_changes', '')
+        if not corrected:
+            return None
+        try:
+            changes = json.loads(changes_raw) if changes_raw else []
+        except Exception:
+            changes = []
+        return {'corrected': corrected, 'changes': changes}
+
+    def _clear_pending_review():
+        Setting.set('pending_review_corrected', '')
+        Setting.set('pending_review_changes', '')
 
     # ------------------------------------------------------------------ #
     # Dashboard
@@ -131,7 +149,7 @@ def create_app():
     @app.route('/resume', methods=['GET'])
     def resume():
         r = MasterResume.get()
-        review = session.pop('resume_review', None)
+        review = _get_pending_review()
         return render_template('resume.html', resume=r, review=review)
 
     @app.route('/resume/save', methods=['POST'])
@@ -179,17 +197,18 @@ def create_app():
 
     @app.route('/resume/accept-review', methods=['POST'])
     def resume_accept_review():
-        review = session.pop('resume_review', None)
+        review = _get_pending_review()
         if review and review.get('corrected'):
             MasterResume.upsert(review['corrected'])
+            _clear_pending_review()
             flash('Corrections applied and saved.', 'success')
         else:
-            flash('No pending review to accept.', 'error')
+            flash('No pending review found.', 'error')
         return redirect(url_for('resume'))
 
     @app.route('/resume/dismiss-review', methods=['POST'])
     def resume_dismiss_review():
-        session.pop('resume_review', None)
+        _clear_pending_review()
         flash('Original kept — no changes made.', 'success')
         return redirect(url_for('resume'))
 
@@ -357,7 +376,8 @@ def create_app():
         except Exception as e:
             flash(f'PDF generation failed: {e}', 'error')
             return redirect(url_for('apply_result', id=id))
-        filename = f"{row.company}_{row.job_title}_resume.pdf".replace(' ', '_')
+        user_name = Setting.get('user_name', 'Gabriel')
+        filename = f"{user_name} {row.id}.pdf"
         return send_file(
             io.BytesIO(pdf_bytes),
             mimetype='application/pdf',
@@ -376,7 +396,7 @@ def create_app():
         parsed = parse_resume(row.tailored_resume_text)
         user_name = Setting.get('user_name', 'Gabriel')
         docx_bytes = render_docx(parsed, user_name)
-        filename = f"{row.company}_{row.job_title}_resume.docx".replace(' ', '_')
+        filename = f"{user_name} {row.id}.docx"
         return send_file(
             io.BytesIO(docx_bytes),
             mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
