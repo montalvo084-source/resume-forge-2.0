@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}New Application — ResumeForge{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-2xl mx-auto">
+
+  <div>
+    <h1 class="text-2xl sm:text-3xl font-bold">New Application</h1>
+    <p class="text-gray-500 mt-1 text-sm sm:text-base">Paste the job details and let the AI tailor your resume.</p>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
+    <form id="apply-form" action="/apply/generate" method="POST">
+
+      <!-- Company + Title: stacked on mobile, side-by-side on larger screens -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Company <span class="text-red-400">*</span></label>
+          <input type="text" name="company" required placeholder="Acme Corp" autocomplete="organization"
+            class="w-full border border-gray-200 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Job Title <span class="text-red-400">*</span></label>
+          <input type="text" name="job_title" required placeholder="Senior Software Engineer"
+            class="w-full border border-gray-200 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Job Description <span class="text-red-400">*</span></label>
+        <textarea name="job_description" required rows="10" placeholder="Paste the full job description here..."
+          class="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-y"></textarea>
+        <p class="text-xs text-gray-400 mt-1">Only the first 2000 characters are used — put the key requirements first.</p>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Why this one? <span class="text-gray-400 font-normal">(optional)</span>
+        </label>
+        <input type="text" name="why_applying"
+          placeholder="pay, remote, sounds interesting, gateway role, love the mission..."
+          class="w-full border border-gray-200 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        <p class="text-xs text-gray-400 mt-1">Anything goes. Helps the AI set the right tone.</p>
+      </div>
+
+      <button type="submit" id="generate-btn"
+        class="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold text-base hover:bg-indigo-700 active:bg-indigo-800 transition-colors flex items-center justify-center gap-2">
+        <span id="btn-text">Generate My Resume</span>
+        <span id="btn-spinner" class="hidden">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </span>
+      </button>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('apply-form').addEventListener('submit', function() {
+  document.getElementById('btn-text').textContent = 'Tailoring your resume...';
+  document.getElementById('btn-spinner').classList.remove('hidden');
+  document.getElementById('generate-btn').disabled = true;
+  document.getElementById('generate-btn').classList.add('opacity-75');
+});
+</script>
+{% endblock %}

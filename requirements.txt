@@ -1,0 +1,9 @@
+Flask==3.1.0
+Flask-SQLAlchemy==3.1.1
+anthropic==0.79.0
+python-docx==1.1.2
+weasyprint
+pdfplumber
+PyMuPDF
+python-dotenv
+gunicorn

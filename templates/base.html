@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ResumeForge{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+  <!-- Nav -->
+  <nav class="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="/" class="text-xl font-bold text-indigo-600 tracking-tight">ResumeForge</a>
+
+      <!-- Desktop nav -->
+      <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
+        <a href="/" class="hover:text-indigo-600 transition-colors {% if request.path == '/' %}text-indigo-600{% endif %}">Dashboard</a>
+        <a href="/resume" class="hover:text-indigo-600 transition-colors {% if request.path == '/resume' %}text-indigo-600{% endif %}">My Resume</a>
+        <a href="/applications" class="hover:text-indigo-600 transition-colors {% if request.path == '/applications' %}text-indigo-600{% endif %}">Applications</a>
+        <a href="/settings" class="hover:text-indigo-600 transition-colors {% if request.path == '/settings' %}text-indigo-600{% endif %}">Settings</a>
+        <a href="/apply" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">+ Apply</a>
+      </div>
+
+      <!-- Mobile: Apply button + hamburger -->
+      <div class="flex items-center gap-3 md:hidden">
+        <a href="/apply" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors">+ Apply</a>
+        <button id="mobile-menu-btn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Open menu">
+          <svg id="hamburger-icon" class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg id="close-icon" class="w-5 h-5 text-gray-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile dropdown menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 mt-3 pt-3 pb-1">
+      <div class="flex flex-col gap-1 max-w-4xl mx-auto">
+        <a href="/" class="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 {% if request.path == '/' %}text-indigo-600 bg-indigo-50{% else %}text-gray-700{% endif %}">Dashboard</a>
+        <a href="/resume" class="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 {% if request.path == '/resume' %}text-indigo-600 bg-indigo-50{% else %}text-gray-700{% endif %}">My Resume</a>
+        <a href="/applications" class="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 {% if request.path == '/applications' %}text-indigo-600 bg-indigo-50{% else %}text-gray-700{% endif %}">Applications</a>
+        <a href="/settings" class="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 {% if request.path == '/settings' %}text-indigo-600 bg-indigo-50{% else %}text-gray-700{% endif %}">Settings</a>
+      </div>
+    </div>
+  </nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="max-w-4xl mx-auto px-4 mt-4">
+        {% for category, message in messages %}
+          <div class="rounded-lg px-4 py-3 mb-2 text-sm
+            {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200
+            {% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  <script>
+    // Mobile nav toggle
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    const hamburger = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
+    btn.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+      hamburger.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

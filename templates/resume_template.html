@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 0.75in 1in; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+  .name {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22pt;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .contact-line {
+    text-align: center;
+    font-size: 10pt;
+    color: #444;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid #1a1a1a;
+  }
+  h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 3px;
+    color: #1a1a1a;
+  }
+  .summary-text {
+    font-size: 10.5pt;
+    margin-bottom: 4px;
+  }
+  .job-block {
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+  }
+  .job-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-weight: bold;
+    font-size: 10.5pt;
+    margin-top: 8px;
+  }
+  .job-company { font-weight: bold; }
+  .job-dates {
+    font-weight: normal;
+    font-size: 10pt;
+    color: #555;
+    white-space: nowrap;
+  }
+  .job-title {
+    font-style: italic;
+    font-size: 10.5pt;
+    margin-bottom: 4px;
+    color: #333;
+  }
+  ul {
+    margin: 4px 0 6px 18px;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 2px;
+    font-size: 10.5pt;
+  }
+  .skills-row {
+    font-size: 10.5pt;
+    margin-bottom: 3px;
+  }
+  .skills-category { font-weight: bold; }
+  .edu-block {
+    font-size: 10.5pt;
+    margin-bottom: 4px;
+    page-break-inside: avoid;
+  }
+  .edu-degree { font-weight: bold; }
+  .edu-year {
+    float: right;
+    font-size: 10pt;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<div class="name">{{ resume.contact.name | default(user_name) }}</div>
+
+{% set contact_parts = [] %}
+{% if resume.contact.get('email') %}{% set _ = contact_parts.append(resume.contact.email) %}{% endif %}
+{% if resume.contact.get('phone') %}{% set _ = contact_parts.append(resume.contact.phone) %}{% endif %}
+{% if resume.contact.get('location') %}{% set _ = contact_parts.append(resume.contact.location) %}{% endif %}
+{% if resume.contact.get('linkedin') %}{% set _ = contact_parts.append(resume.contact.linkedin) %}{% endif %}
+{% if resume.contact.get('portfolio') %}{% set _ = contact_parts.append(resume.contact.portfolio) %}{% endif %}
+<div class="contact-line">{{ contact_parts | join(' &nbsp;|&nbsp; ') }}</div>
+
+{% if resume.summary %}
+<h2>Summary</h2>
+<p class="summary-text">{{ resume.summary }}</p>
+{% endif %}
+
+{% if resume.experience %}
+<h2>Experience</h2>
+{% for job in resume.experience %}
+<div class="job-block">
+  <div class="job-top">
+    <span class="job-company">{{ job.company or job.title }}</span>
+    <span class="job-dates">{{ job.dates }}</span>
+  </div>
+  {% if job.company and job.title %}
+  <div class="job-title">{{ job.title }}</div>
+  {% endif %}
+  {% if job.bullets %}
+  <ul>
+    {% for bullet in job.bullets %}<li>{{ bullet }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if resume.skills %}
+<h2>Skills</h2>
+{% for category, items in resume.skills.items() %}
+<div class="skills-row">
+  <span class="skills-category">{{ category }}:</span> {{ items | join(', ') }}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if resume.education %}
+<h2>Education</h2>
+{% for edu in resume.education %}
+<div class="edu-block">
+  <span class="edu-year">{{ edu.year | default('') }}</span>
+  <span class="edu-degree">{{ edu.degree | default('') }}</span>
+  {% if edu.school %} &mdash; {{ edu.school }}{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+</body>
+</html>

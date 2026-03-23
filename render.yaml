@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: resumeforge
+    env: python
+    pythonVersion: "3.12.4"
+    buildCommand: |
+      apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev libcairo2 libpangoft2-1.0-0 && pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    disk:
+      name: resumeforge-data
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 1
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false

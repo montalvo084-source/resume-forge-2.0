@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}My Resume — ResumeForge{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div>
+    <h1 class="text-2xl sm:text-3xl font-bold">My Resume</h1>
+    <p class="text-gray-500 mt-1 text-sm sm:text-base">Your master resume. All tailored resumes pull from this.</p>
+  </div>
+
+  <!-- AI Review Panel (shown after save/upload when corrections were found) -->
+  {% if review %}
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-4">
+    <div class="flex items-start gap-3">
+      <span class="text-2xl flex-shrink-0">🔍</span>
+      <div>
+        <h2 class="font-semibold text-amber-900 text-base">I found a few things to fix</h2>
+        <p class="text-sm text-amber-700 mt-0.5">AI reviewed your resume and caught some issues. Review the corrections below.</p>
+      </div>
+    </div>
+
+    {% if review.changes %}
+    <ul class="space-y-1.5 ml-2">
+      {% for change in review.changes %}
+      <li class="flex items-start gap-2 text-sm text-amber-800">
+        <span class="text-amber-500 mt-0.5 flex-shrink-0">→</span>
+        <span>{{ change }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="flex flex-col sm:flex-row gap-2 pt-1">
+      <form action="/resume/accept-review" method="POST" class="flex-1 sm:flex-none">
+        <button type="submit"
+          class="w-full sm:w-auto bg-amber-600 text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-amber-700 transition-colors">
+          Accept corrections
+        </button>
+      </form>
+      <form action="/resume/dismiss-review" method="POST" class="flex-1 sm:flex-none">
+        <button type="submit"
+          class="w-full sm:w-auto bg-white border border-amber-200 text-amber-700 px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-amber-50 transition-colors">
+          Keep my original
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Upload section -->
+  <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
+    <h2 class="text-base sm:text-lg font-semibold mb-1">Upload Resume</h2>
+    <p class="text-sm text-gray-500 mb-4">Upload a PDF, Word (.docx), or plain text file.</p>
+
+    <form action="/resume/upload" method="POST" enctype="multipart/form-data">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <input type="file" name="resume_file" accept=".pdf,.docx,.txt"
+          class="block text-sm text-gray-600 w-full sm:w-auto
+                 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0
+                 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700
+                 hover:file:bg-indigo-100 cursor-pointer">
+        <button type="submit"
+          class="w-full sm:w-auto bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors">
+          Upload &amp; Extract
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Edit section -->
+  <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1 gap-1">
+      <h2 class="text-base sm:text-lg font-semibold">Edit Resume Text</h2>
+      {% if resume and resume.updated_at %}
+      <span class="text-xs text-gray-400">Last saved: {{ resume.updated_at.strftime('%b %d, %Y at %I:%M %p') }}</span>
+      {% endif %}
+    </div>
+    <p class="text-sm text-gray-500 mb-4">
+      Paste or type your resume. The AI will check it for errors when you save.
+    </p>
+
+    <form action="/resume/save" method="POST">
+      <textarea name="content" rows="22"
+        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono leading-relaxed
+               focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-y"
+        placeholder="Paste your resume content here...">{{ resume.content if resume else '' }}</textarea>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+        <p class="text-xs text-gray-400">
+          Tip: Put your best content first — the AI reads the first 3000 characters.
+        </p>
+        <button type="submit"
+          class="w-full sm:w-auto bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors text-sm">
+          Save &amp; Review
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — ResumeForge{% endblock %}
+
+{% block content %}
+
+<!-- Onboarding modal -->
+{% if show_onboarding %}
+<div id="onboarding-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+  <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
+    <h2 class="text-2xl font-bold mb-2">Welcome to ResumeForge</h2>
+    <p class="text-gray-600 mb-6">Before we start — how many jobs have you already applied to this quarter?</p>
+    <form action="/settings/starting-count" method="POST">
+      <input type="number" name="starting_count" min="0" value="0"
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg text-center mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      <button type="submit"
+        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+        Let's Go
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- 100 app milestone overlay -->
+<div id="milestone-overlay" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
+  <div class="text-center text-white">
+    <div class="text-5xl sm:text-6xl mb-6">🎯</div>
+    <p class="text-2xl sm:text-3xl font-bold mb-4 leading-tight">100 applications.</p>
+    <p class="text-lg sm:text-xl text-gray-200 leading-relaxed max-w-sm mx-auto">
+      That's not luck — that's discipline.<br>
+      Whatever comes next, you earned it.
+    </p>
+  </div>
+</div>
+
+<div class="space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold">Hey, {{ user_name }} 👋</h1>
+      <p class="text-gray-500 mt-0.5 text-sm sm:text-base">{{ goal_quarter }} job search</p>
+    </div>
+    <a href="/apply"
+      class="bg-indigo-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap flex-shrink-0">
+      + New Application
+    </a>
+  </div>
+
+  <!-- Tally + Progress -->
+  <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
+    <div class="flex items-start justify-between mb-4 gap-4">
+      <div class="min-w-0 flex-1">
+        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Applications</div>
+        <div id="tally-display" class="tally-marks"></div>
+        <div class="text-gray-600 mt-2 text-sm">
+          <span class="font-bold text-gray-900 text-lg">{{ total }}</span> / {{ goal }}
+        </div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-2xl sm:text-3xl font-bold text-indigo-600">{{ progress }}%</div>
+        <div class="text-xs text-gray-400">of goal</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="w-full bg-gray-100 rounded-full h-3 mb-2">
+      <div class="bg-indigo-500 h-3 rounded-full transition-all duration-500"
+           style="width: {{ [progress, 100] | min }}%"></div>
+    </div>
+
+    {% if next_milestone %}
+    <div class="text-xs text-gray-500">
+      Next milestone: <span class="font-semibold text-gray-700">{{ next_milestone }}</span>
+      ({{ next_milestone - total }} to go)
+    </div>
+    {% else %}
+    <div class="text-xs text-indigo-600 font-semibold">Goal reached! Incredible work.</div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Applications -->
+  <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-base sm:text-lg font-semibold">Recent Applications</h2>
+      <a href="/applications" class="text-sm text-indigo-600 hover:underline">View all</a>
+    </div>
+
+    {% if recent %}
+    <div class="space-y-2">
+      {% for app in recent %}
+      <a href="/apply/result/{{ app.id }}"
+         class="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors">
+        <div class="min-w-0 flex-1">
+          <div class="font-medium text-gray-900 text-sm truncate">{{ app.company }}</div>
+          <div class="text-xs text-gray-500 truncate">{{ app.job_title }}</div>
+        </div>
+        <div class="flex items-center gap-2 ml-3 flex-shrink-0">
+          <div class="text-xs text-gray-400 hidden sm:block">{{ app.applied_at.strftime('%b %d') }}</div>
+          <span class="status-badge status-{{ app.status }}">{{ app.status }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-8 text-gray-400">
+      <p class="text-4xl mb-2">📄</p>
+      <p class="text-sm">No applications yet.</p>
+      <a href="/apply" class="mt-2 inline-block text-sm text-indigo-600 hover:underline">Add your first one</a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  renderTallyMarks({{ total }}, 'tally-display');
+</script>
+{% endblock %}
