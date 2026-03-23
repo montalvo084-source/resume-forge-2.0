@@ -3,9 +3,8 @@ services:
     name: resumeforge
     env: python
     pythonVersion: "3.12.4"
-    buildCommand: |
-      apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev libcairo2 libpangoft2-1.0-0 && pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     disk:
       name: resumeforge-data
       mountPath: /opt/render/project/src/instance

@@ -299,15 +299,18 @@ def create_app():
 
     @app.route('/apply/result/<int:id>/download/pdf')
     def download_pdf(id):
+        from resume_parser import parse_resume
         from resume_renderer import render_pdf
         row = db.session.get(Application, id)
-        if row is None or not row.tailored_resume_html:
+        if row is None or not row.tailored_resume_text:
             flash('Resume not found.', 'error')
             return redirect(url_for('dashboard'))
         try:
-            pdf_bytes = render_pdf(row.tailored_resume_html)
+            parsed = parse_resume(row.tailored_resume_text)
+            user_name = Setting.get('user_name', 'Gabriel')
+            pdf_bytes = render_pdf(parsed, user_name)
         except Exception as e:
-            flash(f'PDF generation failed: {e}. Make sure WeasyPrint is installed.', 'error')
+            flash(f'PDF generation failed: {e}', 'error')
             return redirect(url_for('apply_result', id=id))
         filename = f"{row.company}_{row.job_title}_resume.pdf".replace(' ', '_')
         return send_file(
