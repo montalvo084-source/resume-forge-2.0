@@ -13,7 +13,13 @@ from models import Application, MasterResume, Setting, db, seed_settings
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///resumeforge.db'
+
+    # Use PostgreSQL on Railway (DATABASE_URL set automatically), SQLite locally
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:///resumeforge.db')
+    # Railway provides postgres:// but SQLAlchemy requires postgresql://
+    if db_url.startswith('postgres://'):
+        db_url = db_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB upload limit
 
@@ -99,10 +105,7 @@ def create_app():
         goal = int(Setting.get('goal_total', 100))
         progress = min(100, round(total / goal * 100)) if goal else 0
         recent = Application.query.order_by(Application.applied_at.desc()).limit(5).all()
-        show_onboarding = (
-            Setting.get('starting_count', '0') == '0'
-            and Application.query.count() == 0
-        )
+        show_onboarding = Setting.get('onboarding_done', 'false') == 'false'
         return render_template(
             'dashboard.html',
             total=total,
@@ -454,6 +457,7 @@ def create_app():
         except ValueError:
             count = '0'
         Setting.set('starting_count', count)
+        Setting.set('onboarding_done', 'true')
         return redirect(url_for('dashboard'))
 
     return app
