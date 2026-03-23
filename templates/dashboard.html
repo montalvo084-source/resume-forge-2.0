@@ -5,16 +5,17 @@
 
 <!-- Onboarding modal -->
 {% if show_onboarding %}
-<div id="onboarding-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+<div id="onboarding-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4">
   <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
+    <div class="text-4xl mb-3">👋</div>
     <h2 class="text-2xl font-bold mb-2">Welcome to ResumeForge</h2>
     <p class="text-gray-600 mb-6">Before we start — how many jobs have you already applied to this quarter?</p>
     <form action="/settings/starting-count" method="POST">
       <input type="number" name="starting_count" min="0" value="0"
-        class="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg text-center mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg text-center mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400">
       <button type="submit"
-        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
-        Let's Go
+        class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-indigo-700 transition-colors">
+        Let's Hunt 🎯
       </button>
     </form>
   </div>
@@ -22,91 +23,137 @@
 {% endif %}
 
 <!-- 100 app milestone overlay -->
-<div id="milestone-overlay" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
+<div id="milestone-overlay" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
   <div class="text-center text-white">
-    <div class="text-5xl sm:text-6xl mb-6">🎯</div>
-    <p class="text-2xl sm:text-3xl font-bold mb-4 leading-tight">100 applications.</p>
-    <p class="text-lg sm:text-xl text-gray-200 leading-relaxed max-w-sm mx-auto">
+    <div class="text-7xl mb-6 animate-bounce">🏆</div>
+    <p class="text-4xl sm:text-5xl font-black mb-4">100 APPLICATIONS.</p>
+    <p class="text-xl sm:text-2xl text-yellow-300 font-bold mb-2">LEGENDARY STATUS UNLOCKED</p>
+    <p class="text-lg text-gray-300 leading-relaxed max-w-sm mx-auto mt-4">
       That's not luck — that's discipline.<br>
       Whatever comes next, you earned it.
     </p>
   </div>
 </div>
 
-<div class="space-y-6">
+<div class="space-y-5">
 
   <!-- Header -->
   <div class="flex items-start justify-between gap-3">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-bold">Hey, {{ user_name }} 👋</h1>
-      <p class="text-gray-500 mt-0.5 text-sm sm:text-base">{{ goal_quarter }} job search</p>
+      <h1 class="text-2xl sm:text-3xl font-black text-gray-900">
+        Hey, {{ user_name }} {{ rank.icon }}
+      </h1>
+      <div class="flex items-center gap-2 mt-1 flex-wrap">
+        <span class="rank-badge rank-{{ rank.color }}">{{ rank.title }}</span>
+        <span class="text-gray-400 text-xs">{{ goal_quarter }}</span>
+        {% if streak >= 2 %}
+        <span class="streak-badge">🔥 {{ streak }}-day streak</span>
+        {% endif %}
+      </div>
     </div>
     <a href="/apply"
-      class="bg-indigo-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap flex-shrink-0">
-      + New Application
+      class="apply-btn flex-shrink-0">
+      + Apply
     </a>
   </div>
 
-  <!-- Tally + Progress -->
-  <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
-    <div class="flex items-start justify-between mb-4 gap-4">
-      <div class="min-w-0 flex-1">
-        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Applications</div>
-        <div id="tally-display" class="tally-marks"></div>
-        <div class="text-gray-600 mt-2 text-sm">
-          <span class="font-bold text-gray-900 text-lg">{{ total }}</span> / {{ goal }}
-        </div>
+  <!-- Main stats row -->
+  <div class="grid grid-cols-3 gap-3">
+    <div class="stat-card text-center">
+      <div id="total-count" class="stat-number text-indigo-600">{{ total }}</div>
+      <div class="stat-label">Total Apps</div>
+    </div>
+    <div class="stat-card text-center">
+      <div class="stat-number text-emerald-500">{{ apps_this_week }}</div>
+      <div class="stat-label">This Week</div>
+    </div>
+    <div class="stat-card text-center">
+      <div class="stat-number text-amber-500">{{ streak }}</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+  </div>
+
+  <!-- XP / Progress bar -->
+  <div class="xp-card">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <div class="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-0.5">Progress to Goal</div>
+        <div class="text-white font-black text-lg">{{ total }} <span class="text-indigo-300 font-normal text-sm">/ {{ goal }} applications</span></div>
       </div>
-      <div class="text-right flex-shrink-0">
-        <div class="text-2xl sm:text-3xl font-bold text-indigo-600">{{ progress }}%</div>
-        <div class="text-xs text-gray-400">of goal</div>
+      <div class="text-right">
+        <div class="text-3xl font-black text-white">{{ progress }}<span class="text-indigo-300 text-lg">%</span></div>
+        {% if next_milestone %}
+        <div class="text-xs text-indigo-300">{{ next_milestone - total }} to next rank</div>
+        {% endif %}
       </div>
     </div>
-
-    <!-- Progress bar -->
-    <div class="w-full bg-gray-100 rounded-full h-3 mb-2">
-      <div class="bg-indigo-500 h-3 rounded-full transition-all duration-500"
-           style="width: {{ [progress, 100] | min }}%"></div>
+    <div class="xp-bar-bg">
+      <div class="xp-bar-fill" id="xp-bar" style="width: 0%" data-target="{{ [progress, 100] | min }}"></div>
     </div>
-
     {% if next_milestone %}
-    <div class="text-xs text-gray-500">
-      Next milestone: <span class="font-semibold text-gray-700">{{ next_milestone }}</span>
-      ({{ next_milestone - total }} to go)
+    <div class="flex justify-between text-xs text-indigo-400 mt-1.5">
+      <span>{{ rank.icon }} {{ rank.title }}</span>
+      <span>Next: {{ _get_next_rank_label(next_milestone) if _get_next_rank_label is defined else 'Next Milestone' }} at {{ next_milestone }}</span>
     </div>
     {% else %}
-    <div class="text-xs text-indigo-600 font-semibold">Goal reached! Incredible work.</div>
+    <div class="text-xs text-yellow-400 font-bold mt-1.5 text-center">🏆 GOAL REACHED — LEGENDARY</div>
     {% endif %}
   </div>
 
+  <!-- Tally marks -->
+  <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tally</div>
+    <div id="tally-display" class="tally-marks"></div>
+    {% if total == 0 %}
+    <p class="text-sm text-gray-400 mt-2">Your first mark is waiting. Go apply. 🎯</p>
+    {% endif %}
+  </div>
+
+  <!-- Achievements -->
+  {% if achievements %}
+  <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Achievements Unlocked</div>
+    <div class="flex flex-wrap gap-2">
+      {% for a in achievements %}
+      <div class="achievement-badge">
+        <span class="text-lg">{{ a.icon }}</span>
+        <span class="text-xs font-semibold text-gray-700">{{ a.label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Recent Applications -->
-  <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100">
+  <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-base sm:text-lg font-semibold">Recent Applications</h2>
-      <a href="/applications" class="text-sm text-indigo-600 hover:underline">View all</a>
+      <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Recent Applications</div>
+      <a href="/applications" class="text-xs text-indigo-600 hover:underline font-medium">View all →</a>
     </div>
 
     {% if recent %}
     <div class="space-y-2">
       {% for app in recent %}
       <a href="/apply/result/{{ app.id }}"
-         class="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors">
+         class="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors border border-transparent hover:border-gray-100">
         <div class="min-w-0 flex-1">
-          <div class="font-medium text-gray-900 text-sm truncate">{{ app.company }}</div>
-          <div class="text-xs text-gray-500 truncate">{{ app.job_title }}</div>
+          <div class="font-semibold text-gray-900 text-sm truncate">{{ app.company }}</div>
+          <div class="text-xs text-gray-400 truncate">{{ app.job_title }}</div>
         </div>
         <div class="flex items-center gap-2 ml-3 flex-shrink-0">
-          <div class="text-xs text-gray-400 hidden sm:block">{{ app.applied_at.strftime('%b %d') }}</div>
+          <div class="text-xs text-gray-300 hidden sm:block">{{ app.applied_at.strftime('%b %d') }}</div>
           <span class="status-badge status-{{ app.status }}">{{ app.status }}</span>
         </div>
       </a>
       {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-8 text-gray-400">
-      <p class="text-4xl mb-2">📄</p>
-      <p class="text-sm">No applications yet.</p>
-      <a href="/apply" class="mt-2 inline-block text-sm text-indigo-600 hover:underline">Add your first one</a>
+    <div class="text-center py-8">
+      <p class="text-4xl mb-2">🎯</p>
+      <p class="text-gray-400 text-sm font-medium">No applications yet.</p>
+      <a href="/apply" class="mt-2 inline-block text-sm text-indigo-600 hover:underline font-semibold">
+        Make your first move →
+      </a>
     </div>
     {% endif %}
   </div>
@@ -117,5 +164,16 @@
 {% block scripts %}
 <script>
   renderTallyMarks({{ total }}, 'tally-display');
+
+  // Animate XP bar on load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const bar = document.getElementById('xp-bar');
+      if (bar) bar.style.width = bar.dataset.target + '%';
+    }, 300);
+
+    // Animate total counter
+    animateCounter('total-count', {{ total }});
+  });
 </script>
 {% endblock %}

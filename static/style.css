@@ -20,18 +20,19 @@
   align-items: center;
   gap: 1px;
   position: relative;
+  animation: tallyPop 0.3s ease-out;
 }
 
 .tally-vert {
   display: inline-block;
-  color: #1a1a1a;
+  color: #4338CA;
   font-size: 2.2rem;
   line-height: 1;
 }
 
 .tally-slash {
   display: inline-block;
-  color: #1a1a1a;
+  color: #4338CA;
   font-size: 2.4rem;
   line-height: 1;
   transform: rotate(-15deg);
@@ -46,8 +47,15 @@
   font-family: 'Caveat', cursive;
   font-weight: 700;
   font-size: 2.2rem;
-  color: #1a1a1a;
+  color: #6366F1;
   line-height: 1;
+  animation: tallyPop 0.3s ease-out;
+}
+
+@keyframes tallyPop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* ============================================================
@@ -58,50 +66,182 @@
   display: inline-block;
   padding: 2px 10px;
   border-radius: 9999px;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
-.status-applied, .status-select.status-applied {
-  background-color: #EEF2FF;
-  color: #4338CA;
-}
-
-.status-interview, .status-select.status-interview {
-  background-color: #ECFDF5;
-  color: #065F46;
-}
-
-.status-offer, .status-select.status-offer {
-  background-color: #FEF9C3;
-  color: #854D0E;
-}
-
-.status-rejected, .status-select.status-rejected {
-  background-color: #FEF2F2;
-  color: #991B1B;
-}
-
-.status-withdrawn, .status-select.status-withdrawn {
-  background-color: #F9FAFB;
-  color: #6B7280;
-}
-
-/* ============================================================
-   Status select styling
-   ============================================================ */
+.status-applied   { background: #EEF2FF; color: #4338CA; }
+.status-interview { background: #ECFDF5; color: #065F46; }
+.status-offer     { background: #FEF9C3; color: #854D0E; }
+.status-rejected  { background: #FEF2F2; color: #991B1B; }
+.status-withdrawn { background: #F9FAFB; color: #6B7280; }
 
 .status-select {
   appearance: none;
   -webkit-appearance: none;
   padding: 3px 10px;
   border-radius: 9999px;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: capitalize;
   cursor: pointer;
   border: none;
+}
+
+.status-select.status-applied   { background: #EEF2FF; color: #4338CA; }
+.status-select.status-interview { background: #ECFDF5; color: #065F46; }
+.status-select.status-offer     { background: #FEF9C3; color: #854D0E; }
+.status-select.status-rejected  { background: #FEF2F2; color: #991B1B; }
+.status-select.status-withdrawn { background: #F9FAFB; color: #6B7280; }
+
+/* ============================================================
+   Rank badges
+   ============================================================ */
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rank-gray   { background: #F3F4F6; color: #4B5563; }
+.rank-green  { background: #DCFCE7; color: #166534; }
+.rank-blue   { background: #DBEAFE; color: #1E40AF; }
+.rank-yellow { background: #FEF9C3; color: #92400E; }
+.rank-orange { background: #FFEDD5; color: #9A3412; }
+.rank-purple { background: #EDE9FE; color: #5B21B6; }
+.rank-gold   {
+  background: linear-gradient(135deg, #FEF08A, #FCD34D);
+  color: #78350F;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+/* ============================================================
+   Streak badge
+   ============================================================ */
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  color: #92400E;
+  box-shadow: 0 0 6px rgba(251, 146, 60, 0.3);
+}
+
+/* ============================================================
+   Apply button
+   ============================================================ */
+
+.apply-btn {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.apply-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  color: white;
+}
+
+.apply-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   Stat cards
+   ============================================================ */
+
+.stat-card {
+  background: white;
+  border: 1px solid #F3F4F6;
+  border-radius: 16px;
+  padding: 14px 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.stat-number {
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9CA3AF;
+}
+
+/* ============================================================
+   XP card
+   ============================================================ */
+
+.xp-card {
+  background: linear-gradient(135deg, #312E81, #4C1D95, #3730A3);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+}
+
+.xp-bar-bg {
+  width: 100%;
+  background: rgba(255,255,255,0.12);
+  border-radius: 9999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #818CF8, #C4B5FD, #F0ABFC);
+  border-radius: 9999px;
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(196, 181, 253, 0.6);
+}
+
+/* ============================================================
+   Achievement badges
+   ============================================================ */
+
+.achievement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #F8FAFC, #F1F5F9);
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 6px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  animation: badgePop 0.4s ease-out;
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* ============================================================
@@ -113,10 +253,23 @@
   margin: 0 auto;
 }
 
-.resume-preview-container body,
-.resume-preview-container {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
-  color: #1a1a1a;
-  line-height: 1.5;
+/* ============================================================
+   Milestone number animation
+   ============================================================ */
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.count-animate {
+  animation: countUp 0.4s ease-out;
+}
+
+/* ============================================================
+   Nav active glow
+   ============================================================ */
+
+nav a.text-indigo-600 {
+  position: relative;
 }

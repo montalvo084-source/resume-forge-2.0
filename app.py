@@ -38,6 +38,42 @@ def create_app():
                 return m
         return None
 
+    def _get_rank(total):
+        if total >= 100: return {'title': 'Legend',            'icon': '🏆', 'color': 'gold'}
+        if total >= 75:  return {'title': 'Elite',             'icon': '💎', 'color': 'purple'}
+        if total >= 50:  return {'title': 'Unstoppable',       'icon': '🔥', 'color': 'orange'}
+        if total >= 25:  return {'title': 'On a Roll',         'icon': '⚡', 'color': 'yellow'}
+        if total >= 10:  return {'title': 'Building Momentum', 'icon': '📈', 'color': 'blue'}
+        if total >= 5:   return {'title': 'In the Game',       'icon': '🎯', 'color': 'green'}
+        return           {'title': 'Just Getting Started',     'icon': '🌱', 'color': 'gray'}
+
+    def _get_streak():
+        from datetime import date, timedelta
+        apps = Application.query.order_by(Application.applied_at.desc()).all()
+        if not apps:
+            return 0
+        app_dates = set(a.applied_at.date() for a in apps)
+        today = date.today()
+        check = today if today in app_dates else today - timedelta(days=1)
+        if check not in app_dates:
+            return 0
+        streak = 0
+        while check in app_dates:
+            streak += 1
+            check -= timedelta(days=1)
+        return streak
+
+    def _get_achievements(total):
+        tiers = [
+            (5,   'First 5',         '🎯'),
+            (10,  '10 Deep',         '🔟'),
+            (25,  'Quarter Century', '⚡'),
+            (50,  'Halfway There',   '🔥'),
+            (75,  '75 Club',         '💎'),
+            (100, 'Legend',          '🏆'),
+        ]
+        return [{'label': label, 'icon': icon} for n, label, icon in tiers if total >= n]
+
     def _run_resume_review(content: str):
         """Run AI review and store result in session. Silently skips on API error."""
         from ai import review_master_resume
@@ -77,6 +113,12 @@ def create_app():
             user_name=Setting.get('user_name', 'Gabriel'),
             goal_quarter=Setting.get('goal_quarter', 'Q2 2025'),
             show_onboarding=show_onboarding,
+            rank=_get_rank(total),
+            streak=_get_streak(),
+            achievements=_get_achievements(total),
+            apps_this_week=Application.query.filter(
+                Application.applied_at >= __import__('datetime').datetime.utcnow() - __import__('datetime').timedelta(days=7)
+            ).count(),
         )
 
     # ------------------------------------------------------------------ #
